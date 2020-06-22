@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 @Component
@@ -18,6 +19,7 @@ public class DeadRedirectReceiver {
     public void process(Map msg, Channel channel, Message message) throws IOException {
         channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         System.out.println("死信重定向消费端收到"+msg.toString());
+        System.out.println(new Date());
     }
 
 }
