@@ -1,6 +1,8 @@
 package cwh.rabbitMq.controller;
 
 import cwh.rabbitMq.config.DeadLetterConfig;
+import cwh.rabbitMq.config.DelayConfig;
+import cwh.rabbitMq.config.myDelayPostProcessor;
 import cwh.rabbitMq.config.myMessagePostProcessor;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
@@ -92,23 +94,33 @@ public class TestDirectController {
     }
 
     @GetMapping("/ttlDeadLetter")
-    public String ttlDeadLetter(){
+    public String ttlDeadLetter(long time){
         Map<String,Object> map = new HashMap<>();
         map.put("now",new Date());
-        map.put("msg","推送这是ttlDeadLetter消息");
-        myMessagePostProcessor processor = new myMessagePostProcessor(10);
+        map.put("msg","推送这是ttlDeadLetter"+time+"消息");
+        myMessagePostProcessor processor = new myMessagePostProcessor(time);
         rabbitTemplate.convertAndSend(DeadLetterConfig.DEAD_LETTER_EXCHANGE,DeadLetterConfig.DEAD_LETTER_ROUTING_KEY,map,processor);
         return "ok";
     }
 
-    @GetMapping("/ttlDeadLetter15")
+    @GetMapping("/ttlDeadLetter50")
     public String ttlDeadLetter15(){
         Map<String,Object> map = new HashMap<>();
         map.put("now",new Date());
         map.put("msg","推送这是ttlDeadLetter15消息");
-        myMessagePostProcessor processor = new myMessagePostProcessor(15);
+        myMessagePostProcessor processor = new myMessagePostProcessor(50);
         rabbitTemplate.convertAndSend(DeadLetterConfig.DEAD_LETTER_EXCHANGE,DeadLetterConfig.DEAD_LETTER_ROUTING_KEY,map,processor);
         return "ok";
     }
+
+    @GetMapping("/delay")
+    public String delay(Integer time){
+        Map<String,Object> map = new HashMap<>();
+        map.put("now",new Date());
+        map.put("msg","推送这是时间为"+time+"的delay消息");
+        rabbitTemplate.convertAndSend(DelayConfig.DELAY_EXCHANGE_NAME,DelayConfig.DELAY_ROUTING_KEY,map,new myDelayPostProcessor(time));
+        return "ok";
+    }
+
 
 }
